@@ -215,9 +215,9 @@ struct LoopingVideo: UIViewRepresentable {
 /// Three mini reels fanned out and gently floating: the product at a glance.
 private struct FloatingReelStack: View {
     private let cards: [(kind: ChangeKind, title: String, risk: RiskLevel, file: String)] = [
-        (.command, "Installs date-fns", .medium, "npm install"),
-        (.edit, "The Last Candy Problem", .low, "candy_availability.py"),
-        (.edit, "Two Spider-Man friends", .medium, "costume_auth.py"),
+        (.edit, "Break-It! Empty Bowl", .high, "spooky_route_controller.py"),
+        (.edit, "The Last Candy Problem", .low, "spooky_route_controller.py"),
+        (.edit, "Multi-Agent Workflow", .medium, "multi_agent_pipeline.py"),
     ]
 
     var body: some View {
