@@ -37,45 +37,54 @@ struct DecisionPrompt: View {
     }
 
     var body: some View {
-        Group {
-            if docked {
-                panel
-            } else {
-                ZStack(alignment: .bottom) {
-                    Color.black.opacity(0.6)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            if noteFocused { noteFocused = false } else { store.decideLater() }
-                        }
-                    ViewThatFits(in: .vertical) {
-                        panel
-                        ScrollView {
-                            panel
-                        }
-                        .scrollIndicators(.hidden)
-                        .defaultScrollAnchor(.bottom)
+        content
+            .onAppear {
+                note = request.suggestedNote
+                redirecting = isCheckpoint || request.suggestedNote.nilIfBlank != nil
+            }
+            .onDisappear {
+                if store.prompt?.id == request.id {
+                    store.prompt?.suggestedNote = note
+                }
+            }
+            .sensoryFeedback(.impact(weight: .medium), trigger: abs(drag) > threshold)
+            .sensoryFeedback(trigger: decided) { (_: Verdict?, verdict: Verdict?) -> SensoryFeedback? in
+                switch verdict {
+                case .approve: return .success
+                case .deny: return .warning
+                case nil: return nil
+                }
+            }
+            .sensoryFeedback(.error, trigger: nudge)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if docked {
+            panel
+        } else {
+            ZStack(alignment: .bottom) {
+                Color.black.opacity(0.6)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        if noteFocused { noteFocused = false } else { store.decideLater() }
                     }
+                ViewThatFits(in: .vertical) {
+                    panel
+                    ScrollView {
+                        panel
+                    }
+                    .scrollIndicators(.hidden)
+                    .defaultScrollAnchor(.bottom)
                 }
             }
         }
-        .onAppear {
-            note = request.suggestedNote
-            redirecting = isCheckpoint || request.suggestedNote.nilIfBlank != nil
-        }
-        .onDisappear {
-            if store.prompt?.id == request.id {
-                store.prompt?.suggestedNote = note
-            }
-        }
-        .sensoryFeedback(.impact(weight: .medium), trigger: abs(drag) > threshold)
-        .sensoryFeedback(trigger: decided) { _, verdict in
-            verdict == .approve ? .success : verdict == .deny ? .warning : nil
-        }
-        .sensoryFeedback(.error, trigger: nudge)
     }
 
     private var panel: some View {
-        VStack(spacing: 14) {
+        let tintColor: Color = docked ? item.palette.primary.opacity(0.18) : .clear
+        let cornerRadius: CGFloat = docked ? 28 : 36
+        return VStack(spacing: 14) {
             if !docked {
                 Capsule().fill(.white.opacity(0.3)).frame(width: 40, height: 5)
             }
@@ -85,70 +94,87 @@ struct DecisionPrompt: View {
                 .tracking(2)
                 .foregroundStyle(.white.opacity(0.6))
 
-            summaryCard
-                .offset(x: drag)
-                .rotationEffect(.degrees(Double(drag) / 24))
-                .gesture(
-                    DragGesture()
-                        .onChanged { drag = $0.translation.width }
-                        .onEnded { finishDrag($0.translation.width) })
+            draggableSummaryCard
 
             Text(isCheckpoint ? "Swipe right to send · left to let it rest" : "Swipe right to \(approveTitle.lowercased()) · left to deny")
                 .font(.footnote)
                 .foregroundStyle(.white.opacity(0.6))
 
             if redirecting {
-                TextField(isCheckpoint ? "What should \(agent) do next?" : "Tell \(agent) what to do instead…", text: $note, axis: .vertical)
-                    .lineLimit(1...4)
-                    .focused($noteFocused)
-                    .padding(14)
-                    .background(.black.opacity(0.35), in: .rect(cornerRadius: 16))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.15)))
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .modifier(Shake(trigger: nudge))
+                noteField
             }
 
-            HStack(spacing: 12) {
-                Button {
-                    fling(.deny)
-                } label: {
-                    Label(denyTitle, systemImage: isCheckpoint ? "moon.zzz.fill" : "xmark")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.glassProminent)
-                .tint(isCheckpoint ? .indigo : .pink)
-
-                Button {
-                    fling(.approve)
-                } label: {
-                    Label(approveTitle, systemImage: isCheckpoint ? "paperplane.fill" : "checkmark")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.glassProminent)
-                .tint(.green)
-            }
-            .controlSize(.large)
-
-            HStack {
-                if !isCheckpoint, !redirecting {
-                    Button("Deny with a note…") {
-                        withAnimation(.snappy) { redirecting = true }
-                        noteFocused = true
-                    }
-                }
-                Spacer()
-                Button("Decide later") { store.decideLater() }
-            }
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.white.opacity(0.75))
-            .buttonStyle(.plain)
+            actionButtons
+            footerRow
         }
         .padding(docked ? 12 : 20)
-        .glassEffect(.regular.tint(docked ? item.palette.primary.opacity(0.18) : .clear), in: .rect(cornerRadius: docked ? 28 : 36))
+        .glassEffect(.regular.tint(tintColor), in: .rect(cornerRadius: cornerRadius))
         .padding(.horizontal, docked ? 0 : 10)
         .padding(.bottom, docked ? 0 : 6)
+    }
+
+    private var draggableSummaryCard: some View {
+        summaryCard
+            .offset(x: drag)
+            .rotationEffect(.degrees(Double(drag) / 24))
+            .gesture(
+                DragGesture()
+                    .onChanged { drag = $0.translation.width }
+                    .onEnded { finishDrag($0.translation.width) })
+    }
+
+    private var noteField: some View {
+        let promptText = isCheckpoint ? "What should \(agent) do next?" : "Tell \(agent) what to do instead…"
+        return TextField(promptText, text: $note, axis: .vertical)
+            .lineLimit(1...4)
+            .focused($noteFocused)
+            .padding(14)
+            .background(.black.opacity(0.35), in: .rect(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.15)))
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .modifier(Shake(trigger: nudge))
+    }
+
+    private var actionButtons: some View {
+        let denyTint: Color = isCheckpoint ? .indigo : .pink
+        return HStack(spacing: 12) {
+            Button {
+                fling(.deny)
+            } label: {
+                Label(denyTitle, systemImage: isCheckpoint ? "moon.zzz.fill" : "xmark")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(denyTint)
+
+            Button {
+                fling(.approve)
+            } label: {
+                Label(approveTitle, systemImage: isCheckpoint ? "paperplane.fill" : "checkmark")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(.green)
+        }
+        .controlSize(.large)
+    }
+
+    private var footerRow: some View {
+        HStack {
+            if !isCheckpoint, !redirecting {
+                Button("Deny with a note…") {
+                    withAnimation(.snappy) { redirecting = true }
+                    noteFocused = true
+                }
+            }
+            Spacer()
+            Button("Decide later") { store.decideLater() }
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(.white.opacity(0.75))
+        .buttonStyle(.plain)
     }
 
     private var summaryCard: some View {
