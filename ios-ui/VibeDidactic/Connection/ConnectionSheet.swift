@@ -70,7 +70,7 @@ struct ConnectionSheet: View {
                         Label("Demo feed", systemImage: "play.rectangle.on.rectangle")
                     }
                 } footer: {
-                    Text("Plays a scripted Claude Code session so you can try Vibie without a Mac.")
+                    Text("Plays a scripted coding-agent session so you can try Vibie without a Mac.")
                 }
 
                 Section("Set up your Mac") {

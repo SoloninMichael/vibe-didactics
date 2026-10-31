@@ -50,7 +50,7 @@ enum CoachStep: Equatable {
         case .tapAround: "Tap the right edge to skip ahead · middle to pause"
         case .tryTools: "Confused? Tap Ask or take the Quiz"
         case .swipeUp: "Swipe up for the next change — then approve or deny"
-        case .agentWorks: "Claude keeps working on your Mac. New reels land as it goes."
+        case .agentWorks: "The agent keeps working on your Mac. New reels land as it goes."
         }
     }
 

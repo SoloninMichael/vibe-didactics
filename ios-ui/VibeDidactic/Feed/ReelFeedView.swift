@@ -166,7 +166,7 @@ struct FeedHeader: View {
     private var statusLine: some View {
         let text: String = {
             if store.mode == .demo {
-                return store.agentStatus?.state == .working ? "Claude is working…" : "Your agent, at a glance"
+                return store.agentStatus?.state == .working ? "The agent is working…" : "Your agent, at a glance"
             }
             switch bridge.phase {
             case .live: return store.agentStatus.map { "\($0.agent.shortName) · \($0.detail)" } ?? "Live · \(bridge.mac?.name ?? "Mac")"

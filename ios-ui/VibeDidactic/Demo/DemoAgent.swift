@@ -20,7 +20,7 @@ final class DemoAgent {
     }
 
     func status(_ state: AgentStatus.State, _ detail: String) -> AgentStatus {
-        AgentStatus(state: state, detail: detail, project: "google-halloween", agent: .claudeCode)
+        AgentStatus(state: state, detail: detail, project: "google-halloween", agent: .demo)
     }
 
     private static func script() -> [ReelItem] {
@@ -80,7 +80,7 @@ final class DemoAgent {
 
     private static func lesson(_ lesson: DemoLesson, project: String, path: String, intent: String, diff: String) -> ReelItem {
         let parsed = parse(diff)
-        let card = ChangeCard(agent: .claudeCode, project: project, kind: .edit, tool: "Edit", filePath: path,
+        let card = ChangeCard(agent: .demo, project: project, kind: .edit, tool: "Edit", filePath: path,
                               agentIntent: intent, lines: parsed.lines, additions: parsed.additions,
                               deletions: parsed.deletions, language: "Python")
         return ReelItem(card: card, demoLesson: lesson)
