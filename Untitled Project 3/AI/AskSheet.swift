@@ -190,8 +190,14 @@ struct AskPanel: View {
             for try await snapshot in session.streamResponse(to: question) {
                 lines[index].text = snapshot.content
             }
+        } catch let error as LanguageModelSession.GenerationError {
+            if case .exceededContextWindowSize = error {
+                self.session = nil
+                lines[index].text = "We've chatted past what the on-device model can remember. Ask again and I'll start fresh."
+            } else {
+                lines[index].text = FallbackTutor.answer(question, item: item)
+            }
         } catch {
-            self.session = nil
             lines[index].text = FallbackTutor.answer(question, item: item)
         }
     }
