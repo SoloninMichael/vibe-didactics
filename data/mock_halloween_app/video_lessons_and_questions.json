@@ -1,0 +1,350 @@
+{
+  "release_title": "Google Halloween Mode (18-Service Seasonal Release)",
+  "release_summary": "A cross-product Google Halloween update spanning Google Maps Trick-or-Treat Radar, Google Lens AR Pumpkin Carving, Google Nest Costume Recognition, and Google Home CandyChute Smart Feeders.",
+  "architecture_mermaid": "flowchart TB\n    subgraph CLIENT_LAYER[\"📱 1. User & AR Edge Layer (Mobile & Smart Home)\"]\n        APP_MAPS[\"🗺️ Google Maps: Trick-or-Treat Live Radar\"]\n        APP_LENS[\"🎃 Google Lens AR: Pumpkin Carving Tutorial\"]\n        APP_WALLET[\"🪪 Google Wallet: SpookyPass Digital Badge\"]\n        NEST_DOOR[\"📷 Google Nest Doorbell (Smart Porch Camera)\"]\n        NEST_CHUTE[\"🍬 Google Home CandyChute™ Smart Feeder\"]\n    end\n\n    subgraph AUTH_VISION[\"🎭 2. Costume Recognition & Mask-Auth Layer\"]\n        COSTUME_ID[\"🔐 Google CostumeID™ Auth<br/>(Recognizes Kids Even When Wearing a Mask)\"]\n        SPOOKY_VISION[\"👁️ Google SpookyVision™ Classifier<br/>(Detects Costume Character, Group Size & Kids' Ages)\"]\n        TWIN_DETECTOR[\"👯 Google TwinMask™ Deduplicator<br/>(Tells Apart Two Kids Wearing the Exact Same Spider-Man Mask)\"]\n    end\n\n    subgraph SPATIOTEMPORAL[\"📡 3. Kid & Candy Density Engine (Google Maps)\"]\n        CANDY_INDEX[\"🍫 Google SweetSpot™ Candy Counter<br/>(Tracks Live Bowl Candy Count per House)\"]\n        KID_HEATMAP[\"🏃 Google CrowdGeist™ Kid-Density Heatmap<br/>(Real-Time Sidewalk Crowd & Queue Tracker)\"]\n        GHOST_LOCK[\"🔒 Google GhostLock™ Walking-Kid Counter<br/>(Reserves Candy for Kids Currently Walking to a House)\"]\n        ROUTE_SHAPER[\"🧭 Google SpookyRoute™ Traffic Shaper<br/>(Reroutes Kids Away from Empty Bowls on Google Maps)\"]\n    end\n\n    subgraph AR_AMBIENCE[\"🕯️ 4. AR Pumpkin Tutorial & Haunted Porch Layer\"]\n        MESH_PHYSICS[\"📐 Google PumpkinAR™ Cut-Line Validator<br/>(Stops You Before You Cut the Pumpkin's Face All the Way Out)\"]\n        SCARE_MODULATOR[\"👻 Google ScareDial™ Porch Controller<br/>(Switches Skeleton from Scary to Funny When Little Kids Walk Up)\"]\n        COSTUME_STUDIO[\"🧛 Google CostumeStudio™ AR Mirror<br/>(Generates DIY Costume Steps from Closet Photos)\"]\n    end\n\n    subgraph SAFETY_OPS[\"🚨 5. Candy Fairness & Homeowner Notification Layer\"]\n        ONE_CANDY[\"⏱️ Google OneCandy™ Fair-Share Guard<br/>(Stops the Same Kid from Grabbing 10 Candies in a Row)\"]\n        BOWL_ALERT[\"📬 Google BowlAlert™ Homeowner Ping<br/>(Pings the Homeowner's Phone When the Bowl is Almost Empty)\"]\n        PORCH_LIGHT[\"🌙 Google PorchLight™ Auto-Dimmer<br/>(Turns Off Smart Porch Lights When Candy Runs Out)\"]\n    end\n\n    APP_WALLET --> COSTUME_ID --> TWIN_DETECTOR\n    NEST_DOOR --> SPOOKY_VISION --> COSTUME_ID\n    SPOOKY_VISION --> SCARE_MODULATOR --> NEST_DOOR\n    APP_LENS --> MESH_PHYSICS\n    APP_LENS --> COSTUME_STUDIO\n\n    NEST_CHUTE -->|\"Live Bowl Telemetry (Candy Count)\"| CANDY_INDEX\n    CANDY_INDEX --> GHOST_LOCK\n    APP_MAPS --> KID_HEATMAP --> ROUTE_SHAPER\n    GHOST_LOCK <-->|\"Subtract Kids Already Walking\"| ROUTE_SHAPER\n    ROUTE_SHAPER -->|\"Live Reroute on Map\"| APP_MAPS\n\n    TWIN_DETECTOR --> ONE_CANDY --> NEST_CHUTE\n    CANDY_INDEX --> BOWL_ALERT --> PORCH_LIGHT\n    PORCH_LIGHT --> APP_MAPS",
+  "video_lessons": [
+    {
+      "video_id": "video_1_last_candy_walking_kids",
+      "status": "APPROVED_VIDEO_1",
+      "title": "The Last Candy Problem: Why Google Maps Counts Kids Who Are Still Walking",
+      "duration_seconds": 10,
+      "interacting_services": [
+        "Google Home CandyChute™",
+        "Google GhostLock™ Walking-Kid Counter",
+        "Google SpookyRoute™ (Google Maps)"
+      ],
+      "everyday_problem": "House #7 has only 1 candy left in its smart feeder. If Google Maps only checks whether physical_candy > 0, House #7 stays glowing orange until someone physically reaches the porch and takes that last piece. Meanwhile, other kids down the street see the glowing pin and walk all the way to House #7, only to find an empty bowl!",
+      "visual_solution": "Whenever Google Maps routes a kid toward House #7, GhostLock counts them as a walking kid and reserves that candy in transit (claimable_candy = physical_candy - walking_kids). As soon as 1 kid is walking toward the last candy (1 - 1 = 0), House #7 immediately turns gray on Google Maps and Kid B on the sidewalk is rerouted to House #8 (25 candies) across the street.",
+      "code_snippet": {
+        "file_path": "google_halloween/spooky_route_controller.py",
+        "start_line": 42,
+        "end_line": 56,
+        "highlighted_line": 46,
+        "source": "def assign_house_route(house_id: str, group_size: int) -> RouteDecision:\n    physical_candy = candy_chute.get_bowl_count(house_id)\n    walking_kids = ghost_lock.get_walking_kids_count(house_id)\n\n    # CRITICAL FIX: Subtract kids who are already walking toward this house!\n    claimable_candy = physical_candy - walking_kids\n    if claimable_candy < group_size:\n        google_maps.set_pin_state(house_id, PinState.EMPTY_GRAY)\n        return spooky_route.reroute_to_next_house(house_id, group_size)\n\n    ghost_lock.reserve_for_walker(house_id, count=group_size, ttl_sec=180)\n    return RouteDecision(target_house=house_id, status=\"RESERVED_WHILE_WALKING\")"
+      },
+      "storyboard_10s": [
+        {
+          "time_range": "0:00-0:03",
+          "mode": "SETUP",
+          "visual": "3D Pixar-style street with Google Maps overlay. House #7 has a glowing orange pumpkin pin showing '1 Candy Left'. Kid A (vampire cape) is almost at the porch steps, while Kid B (witch hat) is half a block away following a glowing blue arrow toward House #7.",
+          "hud_overlay": "physical_candy = 1 | walking_kids = 1",
+          "caption": "House 7 has only 1 candy left, and Kid A is already walking up to the porch."
+        },
+        {
+          "time_range": "0:03-0:07",
+          "mode": "NORMAL_AI_FIX",
+          "visual": "A friendly glowing blue ghost (GhostLock) puts a 'RESERVED' tag on the last candy for Kid A (1 - 1 = 0). Instantly, House #7's pin flips from Glowing Orange to Gray, and the blue Google Maps arrow under Kid B's feet smoothly bends across the street to House #8 ('25 Candies')!",
+          "hud_overlay": "claimable_candy = physical_candy - walking_kids (0 left -> REROUTE)",
+          "caption": "GhostLock reserves that last candy for Kid A, and Google Maps immediately reroutes Kid B to House 8!"
+        },
+        {
+          "time_range": "0:07-0:10",
+          "mode": "BREAK_IT_COUNTERFACTUAL",
+          "mutation_label": "Delete '- walking_kids' on line 46",
+          "visual": "Red Glitch Flash! The ghost tag disappears. House #7 stays falsely glowing orange while Kid A eats the last candy. Kid B walks all the way to House #7's porch, presses the button, the feeder coughs out a puff of cobwebs, and a sad-face emoji pops over Kid B!",
+          "hud_overlay": "claimable_candy = physical_candy (BUG: Empty Bowl Stampede!)",
+          "caption": "Without counting walking kids, Google Maps leads kids straight to an empty bowl!"
+        }
+      ],
+      "video_generator_prompt": "3D Pixar-style isometric cartoon of a Halloween street at night with a glowing Google Maps AR interface, 10 seconds. House 7 has a floating glowing orange pumpkin pin reading '1 Candy'. Kid A in a vampire cape is stepping onto House 7's porch, while Kid B in a witch hat is walking down the sidewalk following a glowing blue navigation arrow toward House 7. A cute glowing blue ghost puts a glowing padlock badge on the last candy at House 7; immediately the floating pumpkin pin above House 7 turns dark gray and the glowing blue arrow on the sidewalk smoothly bends across the street to guide Kid B toward House 8, which has a glowing green pin reading '25 Candies'.",
+      "mock_questions": [
+        {
+          "question_id": "v1_q1_core_logic",
+          "category": "CORE_LOGIC",
+          "difficulty": "EASY",
+          "prompt": "Why does assign_house_route() calculate 'claimable_candy = physical_candy - walking_kids' instead of just checking 'if physical_candy > 0'?",
+          "socratic_hint": "What happens during the 2 minutes between when a kid checks Google Maps on the street corner and when they actually reach the front door?",
+          "options": [
+            {
+              "id": "A",
+              "text": "Because kids who are already walking toward the house will take the remaining candy before new kids farther down the street arrive.",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Because the smart candy feeder weighs candies in grams instead of counting individual pieces.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "To turn off the street lights when there are too many kids on the sidewalk.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "Checking only physical_candy > 0 ignores kids currently in transit. Subtracting walking_kids lets Google Maps mark the house gray immediately so other kids on the sidewalk are rerouted to a full bowl across the street."
+        },
+        {
+          "question_id": "v1_q2_break_it",
+          "category": "COUNTERFACTUAL_BREAK_IT",
+          "difficulty": "MEDIUM",
+          "prompt": "In the 'Break-It!' animation, what happens on the street when a developer deletes '- walking_kids' from line 46?",
+          "socratic_hint": "Watch House #7's floating pumpkin pin while Kid A is walking up the driveway.",
+          "options": [
+            {
+              "id": "A",
+              "text": "House #7 stays glowing orange on Google Maps until the bowl physically hits zero, tricking Kid B into walking all the way to an empty porch.",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "The smart candy feeder dispenses all 25 candies to the first kid at once.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "Google Maps crashes and hides every house on the street.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "Without subtracting walking_kids, the map pin stays orange until the physical bowl sensor hits 0, causing every kid already walking toward that house to arrive at an empty dispenser."
+        },
+        {
+          "question_id": "v1_q3_ttl_timer",
+          "category": "EDGE_CASE",
+          "difficulty": "MEDIUM",
+          "prompt": "Why does ghost_lock.reserve_for_walker(house_id, count=group_size, ttl_sec=180) include a 180-second (3-minute) expiration timer?",
+          "socratic_hint": "What if Kid A stops to chat with friends on the sidewalk and decides to go home instead of walking to House #7?",
+          "options": [
+            {
+              "id": "A",
+              "text": "If a walking kid gets distracted or goes home without visiting the porch, the reservation automatically expires after 3 minutes so the candy becomes available on Google Maps again.",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Because the chocolate melts inside the feeder after 180 seconds.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "Because the doorbell camera reboots every 3 minutes.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "A walking reservation is a temporary hold (ttl_sec=180). If the kid never arrives at the porch, the hold expires automatically so the last candy is not locked forever in an untouched bowl."
+        }
+      ],
+      "feynman_voice_check": {
+        "voice_prompt": "Explain in 2 simple sentences why checking only the physical candy sensor in the bowl isn't enough for Google Maps, and how counting walking_kids fixes it.",
+        "expected_concepts": [
+          "walking_kids",
+          "physical_candy",
+          "reroute",
+          "empty_bowl"
+        ]
+      }
+    },
+    {
+      "video_id": "video_2a_twin_spiderman_masks",
+      "status": "OPTION_2A_RECOMMENDED",
+      "title": "Two Kids in the Same Spider-Man Mask at the Smart Candy Feeder",
+      "duration_seconds": 10,
+      "interacting_services": [
+        "Google CostumeID™ Auth",
+        "Google TwinMask™ Deduplicator",
+        "Google OneCandy™ Fair-Share Guard"
+      ],
+      "everyday_problem": "The smart candy feeder gives 1 candy per kid using Costume Recognition (since faces are covered by masks) so one greedy kid cannot press the button 10 times in a row. But what happens when two friends walk up together wearing the exact same store-bought Spider-Man mask? If the code only checks costume_label == 'spiderman', the first friend gets a candy and the second friend gets blocked as a duplicate!",
+      "visual_solution": "TwinMask combines the costume character with the kid's height bucket measured by the doorbell camera (kid_signature = f'{costume_label}_{height_bucket}cm'). Now Taller Spider-Man (140cm) and Shorter Spider-Man (120cm) both get 1 candy each—while if Taller Spider-Man reaches back in a second time, he is still blocked!",
+      "code_snippet": {
+        "file_path": "google_halloween/costume_fair_share.py",
+        "start_line": 18,
+        "end_line": 31,
+        "highlighted_line": 21,
+        "source": "def can_dispense_candy(house_id: str, kid_scan: DoorbellScan) -> DispenseVerdict:\n    # Combine costume character + height bucket so two friends in the same mask both get candy!\n    height_bucket = round(kid_scan.height_cm, -1)  # e.g. 116cm -> 120, 138cm -> 140\n    kid_signature = f\"{kid_scan.costume_label}_{height_bucket}cm\"\n\n    if one_candy_guard.already_claimed(house_id, kid_signature):\n        return DispenseVerdict(allowed=False, reason=\"SAME_KID_DOUBLE_DIP\")\n\n    one_candy_guard.mark_claimed(house_id, kid_signature, cooldown_min=30)\n    return DispenseVerdict(allowed=True, signature=kid_signature)"
+      },
+      "storyboard_10s": [
+        {
+          "time_range": "0:00-0:03",
+          "mode": "SETUP",
+          "visual": "Two kids wearing identical red Spider-Man masks walk up to the smart candy feeder on the porch—one kid is slightly taller, one is shorter.",
+          "hud_overlay": "Kid 1: Spider-Man | Kid 2: Spider-Man",
+          "caption": "Two friends walk up wearing the exact same Spider-Man mask."
+        },
+        {
+          "time_range": "0:03-0:07",
+          "mode": "NORMAL_AI_FIX",
+          "visual": "The Google Nest doorbell projects a glowing green horizontal laser ruler above their heads: 'SpiderMan_140cm' and 'SpiderMan_120cm'. Both kids happily get 1 candy each! When the taller Spider-Man sneakily reaches his hand back in for a second candy, the feeder wags a cartoon mechanical finger ('SAME_KID_DOUBLE_DIP').",
+          "hud_overlay": "kid_signature = 'spiderman_140cm' vs 'spiderman_120cm' -> 2 Candies Dispensed!",
+          "caption": "By combining costume with height, both friends get a candy—while double-dipping is still blocked!"
+        },
+        {
+          "time_range": "0:07-0:10",
+          "mode": "BREAK_IT_COUNTERFACTUAL",
+          "mutation_label": "Remove 'height_bucket' (check costume_label only)",
+          "visual": "Red Glitch Flash! Taller Spider-Man gets his candy. Shorter Spider-Man steps up, the camera scans his mask ('Spider-Man == Spider-Man'), flashes a red siren 'ALREADY CLAIMED!', and slams the candy chute door shut in front of his sad eyes!",
+          "hud_overlay": "kid_signature = 'spiderman' (BUG: Second Friend Blocked!)",
+          "caption": "If you only check the costume, the second kid in a popular mask gets zero candy!"
+        }
+      ],
+      "video_generator_prompt": "3D Pixar-style cartoon on a Halloween front porch at night, 10 seconds. Two kids wearing identical Spider-Man costumes and masks (one taller, one shorter) stand in front of a futuristic Google smart candy dispenser with a glowing camera eye. The camera scans both kids with a friendly green hologram ruler above their heads reading 'Spider-Man 140cm' and 'Spider-Man 120cm', and happily drops one glowing candy bar into each kid's pumpkin bucket. Then a red glitch flash shows 'Break-It Mode': the height ruler disappears, the camera sees only the mask on the shorter kid, flashes a red 'ALREADY CLAIMED' icon, and shuts the candy lid while the shorter Spider-Man looks sad.",
+      "mock_questions": [
+        {
+          "question_id": "v2a_q1_core_logic",
+          "category": "CORE_LOGIC",
+          "difficulty": "EASY",
+          "prompt": "Why does can_dispense_candy() build 'kid_signature = f\"{kid_scan.costume_label}_{height_bucket}cm\"' instead of just checking 'kid_scan.costume_label'?",
+          "socratic_hint": "How many kids on the same street wear a Spider-Man, Witch, or Ghost costume on Halloween night?",
+          "options": [
+            {
+              "id": "A",
+              "text": "So two different kids wearing the same popular Halloween costume can each get a candy, while still stopping the exact same kid from grabbing multiple candies.",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Because taller kids automatically get king-size chocolate bars.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "Because the camera cannot see red costumes in the dark.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "Popular costumes like Spider-Man or Witch appear dozens of times per night. Pairing costume_label with height_bucket differentiates siblings or friends in matching masks while still catching the same child reaching in twice."
+        },
+        {
+          "question_id": "v2a_q2_break_it",
+          "category": "COUNTERFACTUAL_BREAK_IT",
+          "difficulty": "MEDIUM",
+          "prompt": "What happens in the 'Break-It!' animation when 'height_bucket' is removed from 'kid_signature'?",
+          "socratic_hint": "Watch what happens when the second (shorter) Spider-Man steps up to the feeder right after his friend.",
+          "options": [
+            {
+              "id": "A",
+              "text": "The feeder mistakes the second Spider-Man for the first kid and refuses to give him any candy ('ALREADY CLAIMED').",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Both kids receive 10 candies each until the bowl is empty.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "The porch light turns off permanently.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "Without height_bucket, kid_signature is just 'spiderman'. Once the first Spider-Man claims a candy, every other Spider-Man for the next 30 minutes is falsely blocked as a repeat visitor!"
+        },
+        {
+          "question_id": "v2a_q3_height_rounding",
+          "category": "EDGE_CASE",
+          "difficulty": "MEDIUM",
+          "prompt": "Why does line 20 round the camera's height measurement into 10cm buckets ('round(kid_scan.height_cm, -1)') instead of using exact millimeters like '136.4cm'?",
+          "socratic_hint": "Does a kid stand at the exact same millimeter height when they slouch, tiptoe, or bounce on the porch steps?",
+          "options": [
+            {
+              "id": "A",
+              "text": "If exact millimeters were used, the same kid could just stand on their tiptoes (136cm -> 139cm) to trick the feeder into thinking they are a brand-new person!",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Because Python strings cannot store decimal points.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "To make the green laser beam look wider on camera.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "Rounding height into buckets prevents a single kid from bypassing the fair-share check simply by slouching or standing on their tiptoes to change their measured height by 1-2 centimeters."
+        }
+      ],
+      "feynman_voice_check": {
+        "voice_prompt": "Explain why checking only the costume name fails on Halloween night, and how adding the rounded height bucket solves both the twin-costume problem and the tiptoe trick.",
+        "expected_concepts": [
+          "costume",
+          "height",
+          "bucket",
+          "same_mask"
+        ]
+      }
+    },
+    {
+      "video_id": "video_2b_scary_skeleton_youngest_kid",
+      "status": "OPTION_2B_ALTERNATIVE",
+      "title": "Scary Porch Skeleton & Big Brother Walking with Baby Sister",
+      "duration_seconds": 10,
+      "interacting_services": [
+        "Google SpookyVision™ Classifier",
+        "Google ScareDial™ Porch Controller",
+        "Google Nest Doorbell"
+      ],
+      "everyday_problem": "A smart porch skeleton roars with fog for teenagers but dances to a funny song for toddlers. What happens when a 15-year-old big brother walks up holding hands with his 3-year-old baby sister? If the code checks the first person detected (detected_group[0].age), it sees the tall teenager first, triggers the monster roar, and makes the toddler cry!",
+      "visual_solution": "ScareDial checks the youngest age in the group (min(kid.estimated_age for kid in detected_group)). Because min(15, 3) == 3, the skeleton automatically switches to Funny Pumpkin Dance mode whenever a toddler is present!",
+      "code_snippet": {
+        "file_path": "google_halloween/scare_dial_controller.py",
+        "start_line": 24,
+        "end_line": 34,
+        "highlighted_line": 26,
+        "source": "def select_porch_animation(detected_group: list[DetectedKid]) -> PorchShowMode:\n    # CRITICAL SAFETY RULE: Always adapt scare level to the YOUNGEST child in frame!\n    youngest_age = min(kid.estimated_age for kid in detected_group)\n\n    if youngest_age < 6:\n        return PorchShowMode.FUNNY_PUMPKIN_DANCE  # Safe for toddlers!\n    return PorchShowMode.SCARY_SKELETON_ROAR"
+      },
+      "storyboard_10s": [
+        {
+          "time_range": "0:00-0:03",
+          "mode": "SETUP",
+          "visual": "A tall 15-year-old teenager in a zombie jacket walks up to a haunted porch holding hands with a tiny 3-year-old toddler in a cute pumpkin suit.",
+          "hud_overlay": "Detected Group: [Age 15, Age 3]",
+          "caption": "A teenager walks up to the porch holding hands with his 3-year-old baby sister."
+        },
+        {
+          "time_range": "0:03-0:07",
+          "mode": "NORMAL_AI_FIX",
+          "visual": "The Nest camera draws bounding boxes ('Age: 15', 'Age: 3'), highlights 'min(15, 3) -> 3', and the scary animatronic skeleton puts on a funny party hat and does a silly dance while the toddler giggles!",
+          "hud_overlay": "youngest_age = min(15, 3) = 3 -> FUNNY_PUMPKIN_DANCE",
+          "caption": "ScareDial picks the youngest age in the group so the skeleton dances instead of roaring!"
+        },
+        {
+          "time_range": "0:07-0:10",
+          "mode": "BREAK_IT_COUNTERFACTUAL",
+          "mutation_label": "Replace 'min(...)' with 'detected_group[0].estimated_age'",
+          "visual": "Red Glitch Flash! The camera locks onto the tall teenager first ('Age: 15 -> SCARY MODE'), the skeleton lunges forward with red eyes and fog, and the toddler drops their candy bucket in shock!",
+          "hud_overlay": "first_age = 15 (BUG: Toddler Jump-Scared!)",
+          "caption": "Checking the first person detected triggers a monster jump-scare right in front of the toddler!"
+        }
+      ],
+      "video_generator_prompt": "3D Pixar-style cartoon on a Halloween porch at night, 10 seconds. A tall teenage boy in a zombie jacket walks up holding hands with a cute 3-year-old toddler in a round pumpkin costume. A smart doorbell camera scans both with green frames reading 'Age 15' and 'Age 3', selects 'Min Age: 3', and a robotic porch skeleton puts on a silly party hat and dances while the toddler laughs. Then a red glitch flash shows 'Break-It Mode': the camera locks only onto 'Age 15', and the skeleton roars with spooky smoke while the toddler drops their candy bucket in surprise.",
+      "mock_questions": [
+        {
+          "question_id": "v2b_q1_core_logic",
+          "category": "CORE_LOGIC",
+          "difficulty": "EASY",
+          "prompt": "Why does select_porch_animation() use 'min(kid.estimated_age for kid in detected_group)' instead of checking 'detected_group[0].estimated_age' or the average age?",
+          "socratic_hint": "What happens if a 15-year-old walks up with a 3-year-old and you take the first person or the average ((15 + 3) / 2 = 9)?",
+          "options": [
+            {
+              "id": "A",
+              "text": "Because older siblings walk in front of toddlers, and even the average age (9) would still trigger SCARY_SKELETON_ROAR (>= 6) and frighten the 3-year-old.",
+              "is_correct": true
+            },
+            {
+              "id": "B",
+              "text": "Because Python's min() function runs faster on GPU cameras than indexing a list.",
+              "is_correct": false
+            },
+            {
+              "id": "C",
+              "text": "To turn off the doorbell camera whenever teenagers approach.",
+              "is_correct": false
+            }
+          ],
+          "back_explanation": "When a group approaches, safety depends on the most sensitive member—the youngest child. Using min() guarantees toddler-safe mode whenever any child under 6 is in the frame."
+        }
+      ],
+      "feynman_voice_check": {
+        "voice_prompt": "Explain why checking the first person in frame or the average group age is unsafe for the haunted porch skeleton, and why min() solves it.",
+        "expected_concepts": [
+          "youngest",
+          "min",
+          "toddler",
+          "group"
+        ]
+      }
+    }
+  ]
+}

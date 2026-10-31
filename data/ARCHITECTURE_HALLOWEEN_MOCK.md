@@ -1,8 +1,67 @@
-# SpookyPrep-OS: Halloween Pumpkin & Party Preparation Platform
+# Google Halloween Mode & SpookyPrep-OS: Target Mock Application Architecture
 ## Target Mock Application & Vibe Didactics Deconstruction Architecture
 
 > [!IMPORTANT]
-> **Purpose of This Document**: `SpookyPrep-OS` is the canonical **medium-to-hard distributed systems mock repository** bundled with **Vibe Didactics**. It represents the exact kind of high-concurrency, multi-invariant backend code that developers "vibe-code" in minutes using AI coding agents—producing software that *passes happy-path tests* yet hides subtle concurrency, ordering, transactional, and backpressure failure modes that the human author does not fully understand.
+> **Purpose of This Document**: This document defines the **Google Halloween Mode (18-Service Ecosystem)** and its core backend implementation (`SpookyPrep-OS`) bundled with **Vibe Didactics**. For the 10-second video scripts (Video #1, Video #2A, Video #2B) and post-video mock questions, see [`backend/TEAM_HANDOVER_VIDEO_AND_UI.md`](../backend/TEAM_HANDOVER_VIDEO_AND_UI.md) and [`data/mock_halloween_app/video_lessons_and_questions.json`](mock_halloween_app/video_lessons_and_questions.json).
+
+---
+
+## 0. The Big Picture: "Google Halloween Mode" (18-Service Ecosystem Diagram)
+
+For October 31st, Google is launching a cross-product seasonal update (**"Google Halloween Mode"**) across **Google Maps, Google Lens AR, Google Nest Doorbell, Google Wallet, and Google Home Smart Candy Dispensers**.  
+The **Tech Lead** reviewing this release sees the 18-service interaction diagram below and uses **Vibe Didactics** to inspect critical service interactions via **10-second 3D cartoon lessons** and **post-video Flip Cards**.
+
+```mermaid
+flowchart TB
+    subgraph CLIENT_LAYER["📱 1. User & AR Edge Layer (Mobile & Smart Home)"]
+        APP_MAPS["🗺️ Google Maps: Trick-or-Treat Live Radar"]
+        APP_LENS["🎃 Google Lens AR: Pumpkin Carving Tutorial"]
+        APP_WALLET["🪪 Google Wallet: SpookyPass Digital Badge"]
+        NEST_DOOR["📷 Google Nest Doorbell (Smart Porch Camera)"]
+        NEST_CHUTE["🍬 Google Home CandyChute™ Smart Feeder"]
+    end
+
+    subgraph AUTH_VISION["🎭 2. Costume Recognition & Mask-Auth Layer"]
+        COSTUME_ID["🔐 Google CostumeID™ Auth<br/>(Recognizes Kids Even When Wearing a Mask)"]
+        SPOOKY_VISION["👁️ Google SpookyVision™ Classifier<br/>(Detects Costume Character, Group Size & Kids' Ages)"]
+        TWIN_DETECTOR["👯 Google TwinMask™ Deduplicator<br/>(Tells Apart Two Kids Wearing the Exact Same Spider-Man Mask)"]
+    end
+
+    subgraph SPATIOTEMPORAL["📡 3. Kid & Candy Density Engine (Google Maps)"]
+        CANDY_INDEX["🍫 Google SweetSpot™ Candy Counter<br/>(Tracks Live Bowl Candy Count per House)"]
+        KID_HEATMAP["🏃 Google CrowdGeist™ Kid-Density Heatmap<br/>(Real-Time Sidewalk Crowd & Queue Tracker)"]
+        GHOST_LOCK["🔒 Google GhostLock™ Walking-Kid Counter<br/>(Reserves Candy for Kids Currently Walking to a House)"]
+        ROUTE_SHAPER["🧭 Google SpookyRoute™ Traffic Shaper<br/>(Reroutes Kids Away from Empty Bowls on Google Maps)"]
+    end
+
+    subgraph AR_AMBIENCE["🕯️ 4. AR Pumpkin Tutorial & Haunted Porch Layer"]
+        MESH_PHYSICS["📐 Google PumpkinAR™ Cut-Line Validator<br/>(Stops You Before You Cut the Pumpkin's Face All the Way Out)"]
+        SCARE_MODULATOR["👻 Google ScareDial™ Porch Controller<br/>(Switches Skeleton from Scary to Funny When Little Kids Walk Up)"]
+        COSTUME_STUDIO["🧛 Google CostumeStudio™ AR Mirror<br/>(Generates DIY Costume Steps from Closet Photos)"]
+    end
+
+    subgraph SAFETY_OPS["🚨 5. Candy Fairness & Homeowner Notification Layer"]
+        ONE_CANDY["⏱️ Google OneCandy™ Fair-Share Guard<br/>(Stops the Same Kid from Grabbing 10 Candies in a Row)"]
+        BOWL_ALERT["📬 Google BowlAlert™ Homeowner Ping<br/>(Pings the Homeowner's Phone When the Bowl is Almost Empty)"]
+        PORCH_LIGHT["🌙 Google PorchLight™ Auto-Dimmer<br/>(Turns Off Smart Porch Lights When Candy Runs Out)"]
+    end
+
+    APP_WALLET --> COSTUME_ID --> TWIN_DETECTOR
+    NEST_DOOR --> SPOOKY_VISION --> COSTUME_ID
+    SPOOKY_VISION --> SCARE_MODULATOR --> NEST_DOOR
+    APP_LENS --> MESH_PHYSICS
+    APP_LENS --> COSTUME_STUDIO
+
+    NEST_CHUTE -->|"Live Bowl Telemetry (Candy Count)"| CANDY_INDEX
+    CANDY_INDEX --> GHOST_LOCK
+    APP_MAPS --> KID_HEATMAP --> ROUTE_SHAPER
+    GHOST_LOCK <-->|"Subtract Kids Already Walking"| ROUTE_SHAPER
+    ROUTE_SHAPER -->|"Live Reroute on Map"| APP_MAPS
+
+    TWIN_DETECTOR --> ONE_CANDY --> NEST_CHUTE
+    CANDY_INDEX --> BOWL_ALERT --> PORCH_LIGHT
+    PORCH_LIGHT --> APP_MAPS
+```
 
 ---
 

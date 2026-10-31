@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -163,3 +164,31 @@ def serve_scene_player(chapter_id: str = "sub_1_carving") -> FileResponse:
     if not player_file.is_file():
         raise HTTPException(status_code=404, detail="scene_player.html not found")
     return FileResponse(player_file, media_type="text/html")
+
+
+VIDEO_LESSONS_JSON = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "mock_halloween_app"
+    / "video_lessons_and_questions.json"
+)
+
+
+@app.get("/api/v1/video-lessons")
+def get_google_halloween_video_lessons() -> Dict[str, Any]:
+    """Returns the 18-service Google Halloween diagram, 10s video storyboards (Video 1, 2A, 2B), and mock questions."""
+    if not VIDEO_LESSONS_JSON.is_file():
+        raise HTTPException(status_code=404, detail="video_lessons_and_questions.json not found")
+    return json.loads(VIDEO_LESSONS_JSON.read_text(encoding="utf-8"))
+
+
+@app.get("/api/v1/video-lessons/{video_id}")
+def get_single_google_halloween_video_lesson(video_id: str) -> Dict[str, Any]:
+    """Returns a single 10s video lesson and its mock questions by video_id."""
+    if not VIDEO_LESSONS_JSON.is_file():
+        raise HTTPException(status_code=404, detail="video_lessons_and_questions.json not found")
+    payload = json.loads(VIDEO_LESSONS_JSON.read_text(encoding="utf-8"))
+    for lesson in payload.get("video_lessons", []):
+        if lesson.get("video_id") == video_id:
+            return lesson
+    raise HTTPException(status_code=404, detail=f"Video lesson '{video_id}' not found")
