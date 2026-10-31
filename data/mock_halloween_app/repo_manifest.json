@@ -1,0 +1,124 @@
+{
+  "repository": "spooky-pumpkin-factory-os",
+  "pull_request": {
+    "number": 1031,
+    "title": "feat(halloween): autonomous AI-generated pumpkin laser carving, candle safety FSM, candy OCC router & spooky sync engine",
+    "branch": "feature/ai-halloween-overhaul",
+    "base_branch": "main",
+    "author": "claude-vibe-architect-bot[bot]",
+    "created_at": "2026-10-31T02:14:00Z",
+    "deploy_deadline": "2026-10-31T18:00:00Z",
+    "total_lines_changed": 2140000,
+    "noise_lines_filtered": 2139420,
+    "critical_signal_lines": 580,
+    "signal_to_noise_ratio": 0.000271
+  },
+  "noise_breakdown": [
+    {
+      "category": "3d_meshes",
+      "description": "Blender-exported OBJ/STL pumpkin shell topologies and skeleton rig meshes",
+      "path_glob": "assets/meshes/**/*.{obj,stl,gltf}",
+      "file_count": 148,
+      "lines_added": 1245800,
+      "review_priority": "IGNORE_GENERATED"
+    },
+    {
+      "category": "svg_pumpkin_assets",
+      "description": "Auto-traced SVG vector stencil paths for 400+ Halloween carving templates",
+      "path_glob": "assets/svg_stencils/**/*.svg",
+      "file_count": 412,
+      "lines_added": 482310,
+      "review_priority": "IGNORE_ASSET"
+    },
+    {
+      "category": "auto_generated_protobufs",
+      "description": "gRPC/Protobuf generated Python & TypeScript stubs for hardware telemetry",
+      "path_glob": "proto/gen/**/*_pb2*.py",
+      "file_count": 86,
+      "lines_added": 268900,
+      "review_priority": "IGNORE_CODEGEN"
+    },
+    {
+      "category": "vendor_lockfiles",
+      "description": "Cargo.lock, pnpm-lock.yaml, poetry.lock, and vendored shader bundles",
+      "path_glob": "{**/poetry.lock,**/pnpm-lock.yaml,vendor/**/*}",
+      "file_count": 29,
+      "lines_added": 142410,
+      "review_priority": "IGNORE_VENDOR"
+    }
+  ],
+  "critical_subsystems": [
+    {
+      "subsystem_id": "carving_dispatcher",
+      "file": "carving_dispatcher.py",
+      "path": "backend/mock_halloween_app/carving_dispatcher.py",
+      "lines_added": 145,
+      "risk_level": "CRITICAL",
+      "domain": "Async CNC Laser Pumpkin Carving Queue & Idempotency",
+      "architectural_patterns": [
+        "Idempotency Lock Table",
+        "Async Worker Semaphore Pool",
+        "Dead-Letter Queue (DLQ) Failover",
+        "Fractal Complexity Guard"
+      ],
+      "subtle_bug_surface": "In-flight idempotency cache eviction & race condition on concurrent retry requests before laser completion"
+    },
+    {
+      "subsystem_id": "candle_safety_fsm",
+      "file": "candle_safety_fsm.py",
+      "path": "backend/mock_halloween_app/candle_safety_fsm.py",
+      "lines_added": 150,
+      "risk_level": "CRITICAL",
+      "domain": "IoT Smart-Candle Thermal & Wind Safety Finite State Machine",
+      "architectural_patterns": [
+        "Deterministic Finite State Machine (FSM)",
+        "Monotonic Sequence Telemetry Filtering",
+        "Hysteresis Thermal Lockout",
+        "Fail-Closed Emergency Extinguish"
+      ],
+      "subtle_bug_surface": "Out-of-order UDP telemetry packets bypassing WIND_GUST_ALERT into direct reignition during thermal spike"
+    },
+    {
+      "subsystem_id": "candy_router",
+      "file": "candy_router.py",
+      "path": "backend/mock_halloween_app/candy_router.py",
+      "lines_added": 145,
+      "risk_level": "CRITICAL",
+      "domain": "Allergy-Safe Trick-or-Treater Candy Inventory & OCC Dispatcher",
+      "architectural_patterns": [
+        "Optimistic Concurrency Control (OCC)",
+        "Hard Allergen Exclusion Filter",
+        "Cross-Contamination Zone Isolation",
+        "Atomic Multi-SKU Reservation"
+      ],
+      "subtle_bug_surface": "Partial SKU rollback failure when OCC version mismatch occurs mid-basket allocation"
+    },
+    {
+      "subsystem_id": "spooky_sync_engine",
+      "file": "spooky_sync_engine.py",
+      "path": "backend/mock_halloween_app/spooky_sync_engine.py",
+      "lines_added": 140,
+      "risk_level": "HIGH",
+      "domain": "Animatronic Skeleton & Fog Machine Beat-Matched Choreography Engine",
+      "architectural_patterns": [
+        "Phase-Locked Loop (PLL) Beat Sync",
+        "Keyframe Ring Buffer Interpolation",
+        "Fog Duty-Cycle Limiter",
+        "Jitter Compensation Window"
+      ],
+      "subtle_bug_surface": "Timestamp wrap-around and BPM division drift causing servo over-torque on rapid tempo changes"
+    }
+  ],
+  "supporting_files": [
+    {
+      "file": "models.py",
+      "path": "backend/mock_halloween_app/models.py",
+      "role": "Shared domain dataclasses and enums"
+    },
+    {
+      "file": "orchestrator.py",
+      "path": "backend/mock_halloween_app/orchestrator.py",
+      "role": "Top-level HalloweenNightOrchestrator coordinating all 4 critical subsystems"
+    }
+  ]
+}

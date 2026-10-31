@@ -10,11 +10,13 @@
 		0F4C037562D20CD26A0AFEFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DEDA32F67BFE892BC5A63A3 /* ContentView.swift */; };
 		7D97B99064340014D7C0CB92 /* VibeDidacticsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131BAB8FD86E8958B483E42A /* VibeDidacticsApp.swift */; };
 		8486C07355D0F6B2DFB1B089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC7E0AA6FF652FA40939D33B /* Assets.xcassets */; };
+		FFB5D72A59D63145B39F3227 /* HalloweenPipelineModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA6B8BDBFFA7FB4C45D700A /* HalloweenPipelineModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		131BAB8FD86E8958B483E42A /* VibeDidacticsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeDidacticsApp.swift; sourceTree = "<group>"; };
 		2DEDA32F67BFE892BC5A63A3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6BA6B8BDBFFA7FB4C45D700A /* HalloweenPipelineModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalloweenPipelineModels.swift; sourceTree = "<group>"; };
 		CC7E0AA6FF652FA40939D33B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E9E727D137B31406CD30EE25 /* VibeDidactics.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VibeDidactics.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -25,6 +27,7 @@
 			children = (
 				CC7E0AA6FF652FA40939D33B /* Assets.xcassets */,
 				2DEDA32F67BFE892BC5A63A3 /* ContentView.swift */,
+				6BA6B8BDBFFA7FB4C45D700A /* HalloweenPipelineModels.swift */,
 				131BAB8FD86E8958B483E42A /* VibeDidacticsApp.swift */,
 			);
 			path = VibeDidactics;
@@ -114,6 +117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F4C037562D20CD26A0AFEFF /* ContentView.swift in Sources */,
+				FFB5D72A59D63145B39F3227 /* HalloweenPipelineModels.swift in Sources */,
 				7D97B99064340014D7C0CB92 /* VibeDidacticsApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
