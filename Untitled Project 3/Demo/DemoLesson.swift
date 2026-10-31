@@ -2,56 +2,64 @@ import Foundation
 
 /// Curated lessons are attached only to locally created demo reels, never live bridge cards.
 enum DemoLesson: String, CaseIterable {
-    case lastCandy, costumeAuth
+    case demoVid1, demoVid2, demoVid3
 
     var title: String {
         switch self {
-        case .lastCandy: "The Last Candy Problem"
-        case .costumeAuth: "Two Kids in the Same Spider-Man Mask"
+        case .demoVid1: "The Last Candy Problem"
+        case .demoVid2: "Break-It! Mode: Empty Bowl Stampede"
+        case .demoVid3: "Multi-Agent Parallel Workflow"
         }
     }
 
     var videoLabel: String {
         switch self {
-        case .lastCandy: "Video #1"
-        case .costumeAuth: "Video #2A"
+        case .demoVid1: "Video #1"
+        case .demoVid2: "Video #2"
+        case .demoVid3: "Video #3"
         }
     }
 
     var symbol: String {
         switch self {
-        case .lastCandy: "🍬"
-        case .costumeAuth: "🕷️"
+        case .demoVid1: "🍬"
+        case .demoVid2: "💥"
+        case .demoVid3: "🤖"
         }
     }
 
     var connection: String {
         switch self {
-        case .lastCandy: "Google Maps ↔ Smart Candy Feeder"
-        case .costumeAuth: "Costume Auth ↔ Smart Feeder"
+        case .demoVid1: "Google Maps ↔ GhostLock ↔ Smart Candy Feeder"
+        case .demoVid2: "Counterfactual Bug · spooky_route_controller.py"
+        case .demoVid3: "Prompt Trigger ↔ 3 Azure OpenAI Agents ↔ Bundle Data"
         }
     }
 
     var summary: String {
         switch self {
-        case .lastCandy:
-            "Reserve candy for kids already walking to the porch, so Google Maps doesn't send more kids to an empty bowl."
-        case .costumeAuth:
-            "Combine costume and a rounded height to distinguish two Spider-Man friends and reduce repeat candy claims."
+        case .demoVid1:
+            "Reserve candy for kids already walking to House #7 so Google Maps immediately reroutes new kids to House #8."
+        case .demoVid2:
+            "Deleting '- walking_kids' leaves House #7 falsely glowing ORANGE on Google Maps while Kid A eats the last candy, sending Kid B to an empty bowl."
+        case .demoVid3:
+            "Fans out one user prompt to Sales, Marketing, and Product AI Agents in parallel, recalls department data, and bundles all three structured outputs."
         }
     }
 
     var videoResource: String? {
         switch self {
-        case .lastCandy: "last-candy"
-        case .costumeAuth: nil
+        case .demoVid1: "demo_vid_1"
+        case .demoVid2: "demo_vid_2"
+        case .demoVid3: "demo_vid_3"
         }
     }
 
     var watchOut: String {
         switch self {
-        case .lastCandy: "Check the last-candy case and expired walking reservations."
-        case .costumeAuth: "Check matching costumes and small height changes."
+        case .demoVid1: "Check physical_candy - walking_kids and the 180s reservation TTL."
+        case .demoVid2: "Watch physical_candy hit 0 while pin_state stays ORANGE (stale!)."
+        case .demoVid3: "1 prompt triggers 3x parallel Azure OpenAI calls; fan-in waits on the slowest branch."
         }
     }
 
@@ -65,7 +73,7 @@ enum DemoLesson: String, CaseIterable {
     /// Preserve the supplied question order and A/B/C answer mappings on every replay.
     var questions: [QuizQuestion] {
         switch self {
-        case .lastCandy:
+        case .demoVid1:
             [
                 QuizQuestion(
                     prompt: "Why does the code check physical_candy - walking_kids instead of just checking physical_candy > 0?",
@@ -98,38 +106,71 @@ enum DemoLesson: String, CaseIterable {
                     explanation: "The three-minute expiry releases abandoned reservations. A kid who never reaches the porch should not keep real candy hidden from the map forever.",
                     label: "Q1.3 · Edge Case — 3-Minute Timer"),
             ]
-        case .costumeAuth:
+        case .demoVid2:
             [
                 QuizQuestion(
-                    prompt: "Why does the feeder identify a kid using costume + height_bucket (e.g., spiderman_120cm) instead of just costume?",
+                    prompt: "In the Break-It! reel, which code change on line 46 of spooky_route_controller.py causes the Empty Bowl Stampede at House #7?",
                     choices: [
-                        "So two different kids wearing the same popular Spider-Man mask can each get a candy, while still stopping the exact same kid from grabbing 10 candies in a row.",
+                        "Deleting '- walking_kids' so claimable_candy equals physical_candy without subtracting active walkers.",
+                        "Setting physical_candy = -1 when the porch light turns on.",
+                        "Changing the house number from House #7 to House #8.",
+                    ],
+                    correct: 0,
+                    explanation: "Crossing out '- walking_kids' ignores active GhostLock reservations, so the route controller thinks 1 candy is still claimable even though Kid A is already walking to take it.",
+                    label: "Q2.1 · Break-It! Code Mutation"),
+                QuizQuestion(
+                    prompt: "In the live watch table, why does pin_state stay ORANGE (stale!) while Kid B gets routed to an EMPTY House #7?",
+                    choices: [
+                        "Because walking_kids was ignored when Kid B requested a route, so Google Maps kept advertising House #7 as available while Kid A ate the last candy.",
+                        "Because the smart candy feeder lost Wi-Fi for 24 hours.",
+                        "Because Kid B turned off GPS on their phone.",
+                    ],
+                    correct: 0,
+                    explanation: "When walking_kids is ignored, claimable_candy falsely reads 1. By the time Kid B walks over, Kid A has eaten the last candy (physical_candy: 0) and the bowl is empty.",
+                    label: "Q2.2 · Live Watch Table Check"),
+                QuizQuestion(
+                    prompt: "Once kids reach the porch, why does the feeder identify a kid using costume + height_bucket (e.g., spiderman_120cm) instead of just costume?",
+                    choices: [
+                        "So two different kids wearing the same Spider-Man mask can each get a candy, while rounding to 10cm stops the same kid on tiptoes from claiming twice.",
                         "Because taller kids automatically get king-size chocolate bars.",
                         "Because the camera cannot see red costumes in the dark.",
                     ],
                     correct: 0,
-                    explanation: "A costume alone can be shared by different kids. The height bucket adds another signal so the two Spider-Man friends in the demo have different claim keys.",
-                    label: "Q2A.1 · Core Logic"),
+                    explanation: "Combining costume with a 10cm height bucket distinguishes two friends in identical masks while absorbing small posture changes like standing on tiptoes.",
+                    label: "Q2.3 · Porch Guard Follow-Up"),
+            ]
+        case .demoVid3:
+            [
                 QuizQuestion(
-                    prompt: "What happens in the “Break-It!” animation when height_bucket is removed?",
+                    prompt: "When a single User Prompt Trigger fires in this workflow, how many parallel Azure OpenAI agent branches execute?",
                     choices: [
-                        "The feeder mistakes the second Spider-Man friend for the first kid and refuses to give him any candy (ALREADY CLAIMED).",
-                        "Both kids receive 10 candies each until the bowl is empty.",
-                        "The porch light turns off permanently.",
+                        "Three parallel branches (Sales, Marketing, and Product AI Agents), multiplying LLM token usage by 3x per trigger.",
+                        "Only one branch runs, chosen at random.",
+                        "Zero LLM calls are made because all data is static.",
                     ],
                     correct: 0,
-                    explanation: "Both friends collapse to the same costume-only claim key. After the first claim, the second friend is incorrectly treated as a repeat visitor.",
-                    label: "Q2A.2 · “Break-It!” Mode Check"),
+                    explanation: "The prompt trigger fans out simultaneously to the Sales, Marketing, and Product AI Agent prototypes, each invoking its own Azure OpenAI Chat Model.",
+                    label: "Q3.1 · Cloud Cost & Fan-Out"),
                 QuizQuestion(
-                    prompt: "Why does the code round height to 10cm buckets (120cm, 140cm) instead of using exact millimeters like 136.4cm?",
+                    prompt: "What happens at the 'Bundle processed data' node if the Marketing Data Processor takes 8 seconds while Sales and Product finish in 1 second?",
                     choices: [
-                        "If exact millimeters were used, the same kid could just stand on their tiptoes (136cm → 139cm) to trick the feeder into thinking they are a brand-new person!",
-                        "Because Python strings cannot store decimal points.",
-                        "To make the green laser beam look wider on camera.",
+                        "The fan-in bundler waits for all three parallel branches to complete, so total latency equals the slowest branch (8s) or fails if one branch times out.",
+                        "It immediately returns only the Sales result and deletes Marketing and Product.",
+                        "It restarts the entire workflow from the beginning every second.",
                     ],
                     correct: 0,
-                    explanation: "Bucketing reduces sensitivity to small height changes. In this example, 136cm and 139cm both round to 140cm, keeping the same claim key.",
-                    label: "Q2A.3 · Edge Case — Why Round Height to 10cm?"),
+                    explanation: "Fan-in synchronization ('Bundle processed data') blocks until Sales, Marketing, and Product processors all deliver their outputs before generating Success Status.",
+                    label: "Q3.2 · Fan-In Synchronization"),
+                QuizQuestion(
+                    prompt: "Why does each AI Agent connect to both an 'Azure OpenAI Chat Model' node and a 'Structured Output Parsed' node before 'Data Recall'?",
+                    choices: [
+                        "To enforce a strict schema on the LLM response before querying downstream Sales, Marketing, or Product data stores.",
+                        "To translate the prompt into binary machine code for the GPU.",
+                        "To dim the user's phone screen during processing.",
+                    ],
+                    correct: 0,
+                    explanation: "Parsing structured output guarantees the agent's response has valid fields before 'Data Recall' and 'Data Processor' nodes run.",
+                    label: "Q3.3 · Structured Output Guard"),
             ]
         }
     }

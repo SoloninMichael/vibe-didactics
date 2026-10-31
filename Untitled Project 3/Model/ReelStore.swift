@@ -88,7 +88,7 @@ final class ReelStore {
     var requestedSheet: ReelSheet?
     var coach: CoachStep?
     var showIntro = !UserDefaults.standard.bool(forKey: "seenIntro")
-    var voiceOn = UserDefaults.standard.bool(forKey: "voiceOn") {
+    var voiceOn = (UserDefaults.standard.object(forKey: "voiceOn") as? Bool) ?? true {
         didSet {
             UserDefaults.standard.set(voiceOn, forKey: "voiceOn")
             if !voiceOn { Narrator.shared.stop() }

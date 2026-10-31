@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Didactics — Pitch Deck</title>
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #141824;
+      --border: rgba(255, 255, 255, 0.1);
+      --orange: #ff6b2b;
+      --purple: #9d5cff;
+      --green: #2ecc71;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 80% 15%, rgba(157, 92, 255, 0.16), transparent 40%),
+                  radial-gradient(circle at 20% 85%, rgba(255, 107, 43, 0.15), transparent 40%),
+                  var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", "Segoe UI", sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 5vw 7vw;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(16px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      text-align: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: rgba(255, 107, 43, 0.14);
+      border: 1px solid rgba(255, 107, 43, 0.4);
+      color: #ff9f6e;
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(3.8rem, 7vw, 6.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #ffffff 30%, #ff9f6e 70%, #b983ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: clamp(2.6rem, 4.8vw, 4.4rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.12;
+      margin-bottom: 28px;
+    }
+
+    .subtitle {
+      font-size: clamp(1.5rem, 2.4vw, 2.3rem);
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 900px;
+      line-height: 1.4;
+      margin-bottom: 52px;
+    }
+
+    /* Slide 1: Team Box */
+    .team-section {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .team-label {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+
+    .team-members {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .member-badge {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      outline: none;
+    }
+
+    .member-badge:focus {
+      border-color: var(--orange);
+    }
+
+    /* Slide 2: Huge PR Image */
+    .pr-frame {
+      background: #ffffff;
+      padding: 18px 24px;
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65),
+                  0 0 0 2px rgba(255, 107, 43, 0.45);
+      max-width: min(1100px, 86vw);
+      margin-bottom: 36px;
+    }
+
+    .pr-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .big-stat-row {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .stat-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 16px 28px;
+      border-radius: 16px;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .stat-chip strong {
+      color: #ff6b6b;
+      font-weight: 800;
+    }
+
+    /* Slide 3: 3 Steps */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      width: 100%;
+      max-width: 1220px;
+      margin-top: 12px;
+      margin-bottom: 44px;
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 38px 30px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .step-icon {
+      font-size: 3.2rem;
+    }
+
+    .step-num {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--orange);
+    }
+
+    .step-title {
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .step-desc {
+      font-size: 1.25rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .demo-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 34px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255, 107, 43, 0.22), rgba(157, 92, 255, 0.22));
+      border: 1px solid rgba(255, 107, 43, 0.5);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Footer Navigation */
+    .nav-bar {
+      position: fixed;
+      bottom: 24px;
+      right: 36px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .slide-counter {
+      font-size: 1rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 48px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <!-- SLIDE 1: Project Name & People -->
+    <section class="slide active" id="slide-1">
+      <div class="pill">🎃 Hackathon — October 31, 2026</div>
+      <h1>Vibe Didactics</h1>
+      <p class="subtitle">
+        Understand massive AI-generated PRs in 60 seconds through<br />
+        <strong>10-second Cartoons</strong> &amp; <strong>Interactive Flip Cards</strong>.
+      </p>
+
+      <div class="team-section">
+        <div class="team-label">Team (Click to Edit Names)</div>
+        <div class="team-members" contenteditable="true" spellcheck="false">
+          <div class="member-badge">Mikhail Solonin</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Who We Target & The Problem (Huge PR Screenshot) -->
+    <section class="slide" id="slide-2">
+      <div class="pill">🎯 Who It's For</div>
+      <h2>For Engineers &amp; Product Builders.</h2>
+      <p class="subtitle" style="margin-bottom: 36px;">
+        Understand how your AI-built app actually works—and <strong>what cloud &amp; services you pay for</strong>.
+      </p>
+
+      <div class="pr-frame">
+        <img src="Huge_PR_example.png" alt="Go-Live PR #1: 1024 files changed, +2,181,315 lines" />
+      </div>
+    </section>
+
+    <!-- SLIDE 3: The Solution (3 Visual Steps + Live Demo) -->
+    <section class="slide" id="slide-3">
+      <div class="pill">🚀 Our Solution</div>
+      <h2>Turn Any Massive PR Into a 60-Second Visual Lesson</h2>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">🗺️</div>
+          <div class="step-num">Step 1 · Map</div>
+          <div class="step-title">Service Graph</div>
+          <div class="step-desc">Spots critical service interactions inside huge AI commits.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">🎬</div>
+          <div class="step-num">Step 2 · Watch</div>
+          <div class="step-title">10s "Break-It" Cartoons</div>
+          <div class="step-desc">Shows how the logic works—and what explodes if you delete a line.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">🃏</div>
+          <div class="step-num">Step 3 · Verify</div>
+          <div class="step-title">Flip Cards &amp; Voice</div>
+          <div class="step-desc">Quick active-recall check before the Tech Lead hits Merge.</div>
+        </div>
+      </div>
+
+      <div class="demo-banner">
+        🎃 Live Demo: Reviewing "Google Halloween Mode" (18 Services)
+      </div>
+    </section>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="prevSlide()" title="Previous Slide (←)">←</button>
+    <span class="slide-counter" id="counter">1 / 3</span>
+    <button class="nav-btn" onclick="nextSlide()" title="Next Slide (→)">→</button>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.getElementById('counter');
+    let current = 0;
+
+    function showSlide(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      counter.textContent = `${current + 1} / ${slides.length}`;
+    }
+
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+
+    window.addEventListener('keydown', (e) => {
+      if (document.activeElement && document.activeElement.isContentEditable) return;
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    });
+  </script>
+</body>
+</html>

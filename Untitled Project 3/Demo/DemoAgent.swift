@@ -1,7 +1,7 @@
 import VibieKit
 import Foundation
 
-/// A scripted Claude Code session on a small vibe-coded app, so Vibie is fun before pairing a Mac.
+/// A scripted session presenting the three curated demo video reels in order (1 -> 2 -> 3).
 final class DemoAgent {
     private var queue: [ReelItem] = []
 
@@ -20,130 +20,70 @@ final class DemoAgent {
     }
 
     func status(_ state: AgentStatus.State, _ detail: String) -> AgentStatus {
-        AgentStatus(state: state, detail: detail, project: "candy-feeder", agent: .claudeCode)
+        AgentStatus(state: state, detail: detail, project: "google-halloween", agent: .claudeCode)
     }
 
     private static func script() -> [ReelItem] {
-        let lessons = [
-            lesson(.lastCandy, path: "maps/candy_availability.py",
-                   intent: "I'll reserve candy for kids already walking to House #7 so Google Maps doesn't send more kids to an empty porch. Count walking reservations as candy already promised, and release abandoned reservations after three minutes.",
+        [
+            lesson(.demoVid1,
+                   project: "google-halloween",
+                   path: "google_halloween/spooky_route_controller.py",
+                   intent: "I'll reserve candy in GhostLock for kids already walking to House #7 so Google Maps immediately switches the pin to grey and routes new kids to House #8. Abandoned walking reservations expire after 180 seconds.",
                    diff: """
-                    def house_has_candy(house_id, physical_candy):
-                   -    return physical_candy > 0
-                   +    walking_kids = reservations.active_count(house_id)
-                   +    return physical_candy - walking_kids > 0
-
-                    def start_walk(house_id, kid_id):
-                   +    reservations.add(house_id, kid_id, ttl_sec=180)
+                    def assign_next_house(kid_id, street_houses):
+                        for house in street_houses:
+                            physical_candy = feeder_sensor.read_count(house.id)
+                   -        claimable_candy = physical_candy
+                   +        walking_kids = ghost_lock.active_walkers(house.id)
+                   +        claimable_candy = physical_candy - walking_kids
+                            if claimable_candy > 0:
+                   +            ghost_lock.reserve(house.id, kid_id, ttl_sec=180)
+                                return google_maps.route(kid_id, to=house.id)
+                        return google_maps.show_grey_pin_and_reroute(kid_id)
                    """),
-            lesson(.costumeAuth, path: "feeder/costume_auth.py",
-                   intent: "I'll combine costume and rounded height so two Spider-Man friends can each claim a candy. Round height to 10cm buckets so small changes, like standing on tiptoes, are less likely to create a new claim key.",
+            lesson(.demoVid2,
+                   project: "google-halloween",
+                   path: "google_halloween/spooky_route_controller.py",
+                   intent: "Break-It! Mode counterfactual check: if we delete '- walking_kids' on line 46, claimable_candy stays 1 while Kid A walks to eat the last candy, leaving pin_state ORANGE (stale!) and sending Kid B to an empty bowl at House #7.",
                    diff: """
-                    def claim_candy(costume, height_cm):
-                   -    kid_id = costume
-                   +    height_bucket = round(height_cm / 10) * 10
-                   +    kid_id = f"{costume}_{height_bucket}cm"
-                        if claims.contains(kid_id):
-                            return "ALREADY CLAIMED"
-                        claims.add(kid_id)
-                        feeder.dispense_one()
+                    def assign_next_house(kid_id, street_houses):
+                        for house in street_houses:
+                            physical_candy = feeder_sensor.read_count(house.id)
+                            walking_kids = ghost_lock.active_walkers(house.id)
+                   -        claimable_candy = physical_candy - walking_kids
+                   +        claimable_candy = physical_candy  # BREAK-IT: walking_kids ignored!
+                            if claimable_candy > 0:
+                                ghost_lock.reserve(house.id, kid_id, ttl_sec=180)
+                                return google_maps.route(kid_id, to=house.id)
+                        return google_maps.show_grey_pin_and_reroute(kid_id)
+                   """),
+            lesson(.demoVid3,
+                   project: "multi-agent-workflow",
+                   path: "workflows/multi_agent_pipeline.py",
+                   intent: "I'll fan out each user prompt to three parallel Azure OpenAI agent branches (Sales, Marketing, and Product), validate their structured outputs before recalling department data, and bundle all three processed results.",
+                   diff: """
+                    async def run_workflow(user_prompt: str) -> WorkflowStatus:
+                   -    sales = await sales_agent.run(user_prompt)
+                   -    return bundle_processed_data([sales])
+                   +    sales_branch, marketing_branch, product_branch = await asyncio.gather(
+                   +        run_branch(sales_agent, recall_sales, process_sales, user_prompt),
+                   +        run_branch(marketing_agent, recall_marketing, process_marketing, user_prompt),
+                   +        run_branch(product_agent, recall_product, process_product, user_prompt),
+                   +    )
+                   +    bundled = bundle_processed_data([sales_branch, marketing_branch, product_branch])
+                   +    return generate_success_status(bundled)
                    """),
         ]
-        let otherChanges: [ChangeCard] = [
-            edit("src/components/PlantCard.tsx", language: "TSX",
-                 intent: "I'll add a \"Thirsty\" badge to each plant card so you can see at a glance which plants need water. It compares the days since the last watering with each plant's schedule.",
-                 diff: """
-                  import type { Plant } from "../types";
-                 +import { daysSince } from "../lib/daysSince";
-
-                 ~8
-                  export function PlantCard({ plant }: { plant: Plant }) {
-                 +  const days = daysSince(plant.lastWatered);
-                 +  const thirsty = days >= plant.waterEveryDays;
-                 +
-                    return (
-                      <div className="plant-card">
-                        <img src={plant.photo} alt="" />
-                        <h3>{plant.name}</h3>
-                 +      <span className={thirsty ? "badge thirsty" : "badge"}>
-                 +        {thirsty ? `Thirsty · ${days}d` : `Watered ${days}d ago`}
-                 +      </span>
-                      </div>
-                    );
-                  }
-                 """),
-            command("npm install date-fns@4.1.0",
-                    intent: "Install date-fns for reliable date math\n\nCounting days is surprisingly tricky across time zones and daylight saving, so I'll use the well-known date-fns library instead of hand-rolling it."),
-            create("src/lib/daysSince.ts", language: "TypeScript",
-                   intent: "I'll create a tiny helper that counts whole days since a date. Keeping it in one place means every screen decides \"thirsty\" the same way.",
-                   diff: """
-                   +import { differenceInCalendarDays } from "date-fns";
-                   +
-                   +/** Whole days between a past date and today (never negative). */
-                   +export function daysSince(date: string | Date): number {
-                   +  const then = typeof date === "string" ? new Date(date) : date;
-                   +  return Math.max(0, differenceInCalendarDays(new Date(), then));
-                   +}
-                   """),
-            edit("src/api/auth.ts", language: "TypeScript",
-                 intent: "I'll hash passwords with bcrypt so a database leak doesn't expose them. Right now login compares the typed password with the stored one as plain text.",
-                 diff: """
-                 -import { db } from "./db";
-                 +import bcrypt from "bcryptjs";
-                 +import { db } from "./db";
-
-                  export async function login(email: string, password: string) {
-                    const user = await db.users.findByEmail(email);
-                 -  if (!user || user.password !== password) {
-                 +  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-                      throw new AuthError("Invalid email or password");
-                    }
-                    return createSession(user.id);
-                  }
-                 """),
-            command("rm -rf .next node_modules && npm ci",
-                    intent: "Clean reinstall to fix the stale build cache\n\nThe dev server keeps serving an old build. I'll wipe the build cache and node_modules, then reinstall everything from the lockfile."),
-            sensitive(".env.local",
-                      intent: "I'll add the SESSION_SECRET that the new login code needs to sign cookies."),
-            checkpoint(intent: "Done! Plants now show a \"Thirsty\" badge when they're overdue, day counting uses date-fns, and login checks hashed passwords with bcrypt. Existing users still have plain-text passwords, so next I'd suggest a one-time migration to hash them."),
-        ]
-        return lessons + otherChanges.map { ReelItem(card: $0) }
     }
 
     // MARK: Builders
 
-    private static func lesson(_ lesson: DemoLesson, path: String, intent: String, diff: String) -> ReelItem {
+    private static func lesson(_ lesson: DemoLesson, project: String, path: String, intent: String, diff: String) -> ReelItem {
         let parsed = parse(diff)
-        let card = ChangeCard(agent: .claudeCode, project: "candy-feeder", kind: .edit, tool: "Edit", filePath: path,
+        let card = ChangeCard(agent: .claudeCode, project: project, kind: .edit, tool: "Edit", filePath: path,
                               agentIntent: intent, lines: parsed.lines, additions: parsed.additions,
                               deletions: parsed.deletions, language: "Python")
         return ReelItem(card: card, demoLesson: lesson)
-    }
-
-    private static func edit(_ path: String, language: String, intent: String, diff: String) -> ChangeCard {
-        let parsed = parse(diff)
-        return ChangeCard(agent: .claudeCode, project: "plant-pal", kind: .edit, tool: "Edit", filePath: path,
-                          agentIntent: intent, lines: parsed.lines, additions: parsed.additions, deletions: parsed.deletions, language: language)
-    }
-
-    private static func create(_ path: String, language: String, intent: String, diff: String) -> ChangeCard {
-        let parsed = parse(diff)
-        return ChangeCard(agent: .claudeCode, project: "plant-pal", kind: .create, tool: "Write", filePath: path,
-                          agentIntent: intent, lines: parsed.lines, additions: parsed.additions, language: language)
-    }
-
-    private static func command(_ command: String, intent: String) -> ChangeCard {
-        ChangeCard(agent: .claudeCode, project: "plant-pal", kind: .command, tool: "Bash", command: command, agentIntent: intent, language: "Shell")
-    }
-
-    private static func sensitive(_ path: String, intent: String) -> ChangeCard {
-        ChangeCard(agent: .claudeCode, project: "plant-pal", kind: .edit, tool: "Edit", filePath: path, agentIntent: intent,
-                   lines: [DiffLine(kind: .gap, text: "Contents hidden — this file can hold secrets, so it never leaves your Mac")],
-                   additions: 1, redactions: 1, language: "Env")
-    }
-
-    private static func checkpoint(intent: String) -> ChangeCard {
-        ChangeCard(agent: .claudeCode, project: "plant-pal", kind: .checkpoint, tool: "Stop", agentIntent: intent)
     }
 
     /// Each line starts with "+", "-" or " ", or is "~N" for N unchanged lines.
