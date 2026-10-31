@@ -191,8 +191,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Нужен доступ к камере, чтобы фотографировать код или схему";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Нужен доступ к микрофону для объяснения кода голосом (Метод Фейнмана)";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to capture code snippets or architecture diagrams.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access is required to explain your code out loud (Feynman Technique).";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -271,8 +271,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Нужен доступ к камере, чтобы фотографировать код или схему";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Нужен доступ к микрофону для объяснения кода голосом (Метод Фейнмана)";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to capture code snippets or architecture diagrams.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone access is required to explain your code out loud (Feynman Technique).";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

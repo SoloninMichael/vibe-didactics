@@ -6,49 +6,49 @@ struct ContentView: View {
             NavigationStack {
                 PlaceholderTabView(
                     icon: "doc.text.magnifyingglass",
-                    title: "AI Код / PR",
-                    subtitle: "Сюда будем загружать код, скриншот или ссылку на PR для разбора"
+                    title: "AI Code / PR",
+                    subtitle: "Upload a code snippet, screenshot, or PR link to deconstruct and learn"
                 )
                 .navigationTitle("Vibe Didactics")
             }
             .tabItem {
-                Label("Код", systemImage: "chevron.left.forwardslash.chevron.right")
+                Label("Code", systemImage: "chevron.left.forwardslash.chevron.right")
             }
 
             NavigationStack {
                 PlaceholderTabView(
                     icon: "cube.transparent.fill",
-                    title: "3D Мультик / Сцена",
-                    subtitle: "Здесь будет интерактивная 3D-метафора и тумблер «Сломай игрушку»"
+                    title: "3D Scene & Metaphor",
+                    subtitle: "Interactive 3D visual explanation and 'Break It' counterfactual toggle"
                 )
-                .navigationTitle("3D Разбор")
+                .navigationTitle("3D Explorer")
             }
             .tabItem {
-                Label("3D Сцена", systemImage: "cube.fill")
+                Label("3D Scene", systemImage: "cube.fill")
             }
 
             NavigationStack {
                 PlaceholderTabView(
                     icon: "rectangle.on.rectangle.angled",
-                    title: "Флип-карточки",
-                    subtitle: "Здесь будут карточки для проверки понимания кода и архитектуры"
+                    title: "Flip Cards",
+                    subtitle: "Active recall cards & Socratic questions to verify implementation understanding"
                 )
-                .navigationTitle("Карточки")
+                .navigationTitle("Flip Cards")
             }
             .tabItem {
-                Label("Карточки", systemImage: "rectangle.stack.fill")
+                Label("Cards", systemImage: "rectangle.stack.fill")
             }
 
             NavigationStack {
                 PlaceholderTabView(
                     icon: "mic.circle.fill",
-                    title: "Метод Фейнмана",
-                    subtitle: "Объясни решение голосом «плюшевой уточке» и проверь себя"
+                    title: "Feynman Voice Check",
+                    subtitle: "Explain the AI solution out loud to the Rubber Duck and get instant feedback"
                 )
-                .navigationTitle("Фейнман")
+                .navigationTitle("Feynman Check")
             }
             .tabItem {
-                Label("Голос", systemImage: "waveform.and.mic")
+                Label("Voice", systemImage: "waveform.and.mic")
             }
         }
     }
